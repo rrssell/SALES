@@ -1,4 +1,3 @@
-
 <?php
 header('Content-Type: application/json');
 session_start();
@@ -12,10 +11,11 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../config/database.php';
 
 try {
-    $query = "SELECT id, name, description, price, stock_quantity 
-              FROM menu_items 
-              WHERE is_available = 1
-              ORDER BY name";
+    $query = "SELECT m.id, m.name, m.description, m.price, m.stock_quantity, c.name as category_name 
+              FROM menu_items m 
+              LEFT JOIN categories c ON m.category_id = c.id 
+              WHERE m.is_available = 1 
+              ORDER BY c.name, m.name";
     $stmt = $conn->prepare($query);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -26,4 +26,3 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }
-?>

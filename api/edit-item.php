@@ -13,17 +13,17 @@ require_once '../config/database.php';
 try {
     $input = json_decode(file_get_contents('php://input'), true);
 
-    $query = "INSERT INTO menu_items (name, description, price, stock_quantity, category_id, low_stock_threshold) 
-              VALUES (?, ?, ?, ?, ?, ?)";
+    $query = "UPDATE menu_items SET name = ?, description = ?, price = ?, stock_quantity = ?, category_id = ?, low_stock_threshold = ? WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param(
-        "ssdiis",
+        "ssdiisi",
         $input['name'],
         $input['description'],
         $input['price'],
         $input['stock_quantity'],
         $input['category_id'],
-        $input['low_stock_threshold']
+        $input['low_stock_threshold'],
+        $input['id']
     );
     $stmt->execute();
 
@@ -31,4 +31,3 @@ try {
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-?>

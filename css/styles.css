@@ -361,7 +361,7 @@ body {
 
 /* Modal Styles */
 .modal {
-    display: none;
+    display: none; /* Hidden by default */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -396,7 +396,6 @@ body {
 .modal form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 .modal input, .modal textarea, .modal select {
@@ -497,4 +496,164 @@ transition: background-color 70ms cubic-bezier(.2,0,.38,.9),outline 70ms cubic-b
     outline: 2px solid #0f62fe;
     outline-offset: -2px;
 }
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    padding: 10px;
+}
+
+.modal.active {
+    display: flex; /* Only show with flex when active */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.8em;
+}
+
+.modal-content input[type="number"],
+.modal-content input[type="text"],
+.modal-content select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.85em;
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.85em;
+    height: 50px;
+    resize: vertical;
+}
+
+.modal-content .form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.modal-content .form-group {
+    flex: 1;
+}
+
+.modal-content .close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #333;
+}
+
+.modal-content .btn {
+    width: 100%;
+    padding: 7px;
+    margin-top: 4px;
+    font-size: 0.85em;
+}
+
+/* Responsive design */
+@media screen and (max-width: 600px) {
+    .modal-content {
+        max-width: 90%;
+        padding: 10px;
+    }
+
+    .modal-content label {
+        font-size: 0.75em;
+    }
+
+    .modal-content h2 {
+        font-size: 1em;
+        margin-bottom: 6px;
+    }
+
+    .modal-content input[type="number"],
+    .modal-content input[type="text"],
+    .modal-content textarea,
+    .modal-content select {
+        font-size: 0.8em;
+        padding: 4px;
+        margin-bottom: 5px;
+    }
+
+    .modal-content textarea {
+        height: 40px;
+    }
+
+    .modal-content .btn {
+        font-size: 0.8em;
+        padding: 6px;
+    }
+
+    .modal-content .form-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .modal-content {
+        max-width: 95%;
+        padding: 8px;
+    }
+
+    .modal-content h2 {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+
+    .modal-content label {
+        font-size: 0.7em;
+    }
+
+    .modal-content input[type="number"],
+    .modal-content input[type="text"],
+    .modal-content textarea,
+    .modal-content select {
+        font-size: 0.75em;
+        padding: 3px;
+    }
+
+    .modal-content .btn {
+        font-size: 0.75em;
+        padding: 5px;
+    }
+
+    .modal-content textarea {
+        height: 35px;
+    }
 }

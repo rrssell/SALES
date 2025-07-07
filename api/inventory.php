@@ -1,4 +1,3 @@
-
 <?php
 header('Content-Type: application/json');
 session_start();
@@ -14,8 +13,8 @@ require_once '../config/database.php';
 try {
     $query = "SELECT m.*, c.name as category_name 
               FROM menu_items m 
-              LEFT JOIN categories c ON m.category_id = c.id
-              ORDER BY m.name";
+              LEFT JOIN categories c ON m.category_id = c.id 
+              ORDER BY c.name, m.name";
     $stmt = $conn->prepare($query);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -26,4 +25,3 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }
-?>

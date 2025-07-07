@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMenuItems();
     loadCategories();
     setTodaysDate();
+    document.getElementById('addItemModal').style.display = 'none';
 });
 
 // Navigation functions
@@ -108,7 +109,34 @@ async function loadMenuItems() {
         const container = document.getElementById('menuItems');
         container.innerHTML = '';
         
+        let currentCategory = null;
+        let currentSection = null;
+        let currentGrid = null;
+
         menuItems.forEach(item => {
+            const categoryName = item.category_name || 'Uncategorized';
+            
+            if (categoryName !== currentCategory) {
+                currentCategory = categoryName;
+                
+                // Create category section
+                currentSection = document.createElement('div');
+                currentSection.className = 'category-section';
+                
+                // Add category heading
+                const heading = document.createElement('h2');
+                heading.textContent = currentCategory;
+                currentSection.appendChild(heading);
+                
+                // Create grid for items
+                currentGrid = document.createElement('div');
+                currentGrid.className = 'menu-grid';
+                currentSection.appendChild(currentGrid);
+                
+                container.appendChild(currentSection);
+            }
+            
+            // Create item card
             const itemDiv = document.createElement('div');
             itemDiv.className = 'menu-item';
             itemDiv.onclick = () => addToOrder(item);
@@ -117,10 +145,11 @@ async function loadMenuItems() {
                 <div class="price">₱${parseFloat(item.price).toFixed(2)}</div>
                 <div class="stock">Stock: ${item.stock_quantity}</div>
             `;
-            container.appendChild(itemDiv);
+            currentGrid.appendChild(itemDiv);
         });
     } catch (error) {
         console.error('Error loading menu items:', error);
+        document.getElementById('menuItems').innerHTML = '<p>Error loading menu items</p>';
     }
 }
 
@@ -258,7 +287,34 @@ async function loadInventoryItems() {
         const container = document.getElementById('inventoryItems');
         container.innerHTML = '';
         
+        let currentCategory = null;
+        let currentSection = null;
+        let currentGrid = null;
+
         items.forEach(item => {
+            const categoryName = item.category_name || 'Uncategorized';
+            
+            if (categoryName !== currentCategory) {
+                currentCategory = categoryName;
+                
+                // Create category section
+                currentSection = document.createElement('div');
+                currentSection.className = 'category-section';
+                
+                // Add category heading
+                const heading = document.createElement('h2');
+                heading.textContent = currentCategory;
+                currentSection.appendChild(heading);
+                
+                // Create grid for items
+                currentGrid = document.createElement('div');
+                currentGrid.className = 'inventory-grid';
+                currentSection.appendChild(currentGrid);
+                
+                container.appendChild(currentSection);
+            }
+            
+            // Create item card
             const itemDiv = document.createElement('div');
             itemDiv.className = 'inventory-item';
             itemDiv.innerHTML = `
@@ -273,10 +329,11 @@ async function loadInventoryItems() {
                     <button class="btn btn-secondary" onclick="editItem(${item.id})">Edit</button>
                 </div>
             `;
-            container.appendChild(itemDiv);
+            currentGrid.appendChild(itemDiv);
         });
     } catch (error) {
         console.error('Error loading inventory:', error);
+        document.getElementById('inventoryItems').innerHTML = '<p>Error loading inventory</p>';
     }
 }
 
@@ -399,7 +456,7 @@ async function loadOrderLogs() {
                     Time: ${new Date(log.created_at).toLocaleTimeString()}
                 </div>
                 <div>
-                    <strong>$${parseFloat(log.total_amount).toFixed(2)}</strong>
+                    <strong>₱${parseFloat(log.total_amount).toFixed(2)}</strong>
                 </div>
             `;
             container.appendChild(logDiv);
@@ -508,17 +565,166 @@ function logout() {
 // Sales reports and best selling items functions would be similar
 // Adding placeholders for completeness
 async function loadSalesReports() {
-    console.log('Loading sales reports...');
+    const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
+    const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
+    
+    try {
+        const response = await fetch(`api/sales-reports.php?start_date=${startDate}&end_date=${endDate}`);
+        const data = await response.json();
+        
+        const container = document.getElementById('salesReportData');
+        container.innerHTML = '';
+        
+        if (data.error) {
+            container.innerHTML = '<p>Error loading sales data</p>';
+            return;
+        }
+        
+        // Display totals
+        const totalsDiv = document.createElement('div');
+        totalsDiv.className = 'report-summary';
+        totalsDiv.innerHTML = `
+            <h3>Sales Summary (${data.period.start_date} to ${data.period.end_date})</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>Total Orders:</strong> ${data.totals.total_orders || 0}
+                </div>
+                <div class="summary-item">
+                    <strong>Total Sales:</strong> ₱${parseFloat(data.totals.total_sales || 0).toFixed(2)}
+                </div>
+                <div class="summary-item">
+                    <strong>Average Order:</strong> ₱${parseFloat(data.totals.average_order || 0).toFixed(2)}
+                </div>
+            </div>
+        `;
+        container.appendChild(totalsDiv);
+        
+        // Display daily sales
+        if (data.dailySales && data.dailySales.length > 0) {
+            const dailyDiv = document.createElement('div');
+            dailyDiv.innerHTML = '<h3>Daily Breakdown</h3>';
+            
+            data.dailySales.forEach(day => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'report-item';
+                dayDiv.innerHTML = `
+                    <div>
+                        <strong>${new Date(day.date).toLocaleDateString()}</strong><br>
+                        Orders: ${day.total_orders}
+                    </div>
+                    <div>
+                        <strong>₱${parseFloat(day.total_sales).toFixed(2)}</strong><br>
+                        Avg: ₱${parseFloat(day.average_order).toFixed(2)}
+                    </div>
+                `;
+                dailyDiv.appendChild(dayDiv);
+            });
+            
+            container.appendChild(dailyDiv);
+        } else {
+            const noDataDiv = document.createElement('div');
+            noDataDiv.innerHTML = '<p>No sales data found for this period.</p>';
+            container.appendChild(noDataDiv);
+        }
+    } catch (error) {
+        console.error('Error loading sales reports:', error);
+        document.getElementById('salesReportData').innerHTML = '<p>Error loading sales data</p>';
+    }
 }
 
 async function loadBestSellingItems() {
-    console.log('Loading best selling items...');
+    try {
+        const response = await fetch('api/best-selling.php?limit=10&days=30');
+        const items = await response.json();
+        
+        const container = document.getElementById('bestSellingItems');
+        container.innerHTML = '';
+        
+        if (items.error) {
+            container.innerHTML = '<p>Error loading best selling items</p>';
+            return;
+        }
+        
+        if (items.length === 0) {
+            container.innerHTML = '<p>No sales data available for the last 30 days.</p>';
+            return;
+        }
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.innerHTML = '<h3>Top 10 Best Selling Items (Last 30 Days)</h3>';
+        container.appendChild(headerDiv);
+        
+        items.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'report-item';
+            itemDiv.innerHTML = `
+                <div>
+                    <strong>#${index + 1} ${item.name}</strong><br>
+                    <span>₱${parseFloat(item.price).toFixed(2)} each</span><br>
+                    <small>${item.order_count} orders</small>
+                </div>
+                <div>
+                    <strong>${item.total_sold} sold</strong><br>
+                    <span>₱${parseFloat(item.total_revenue).toFixed(2)} revenue</span>
+                </div>
+            `;
+            container.appendChild(itemDiv);
+        });
+    } catch (error) {
+        console.error('Error loading best selling items:', error);
+        document.getElementById('bestSellingItems').innerHTML = '<p>Error loading best selling items</p>';
+    }
 }
 
 function generateReport() {
-    console.log('Generating report...');
+    loadSalesReports();
 }
 
 function exportReport() {
-    console.log('Exporting report...');
+    const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
+    const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
+    
+    // Create CSV export URL
+    const exportUrl = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&format=csv`;
+    
+    // For now, just show an alert - you can enhance this later
+    alert('CSV export functionality can be added. For now, the data is displayed on screen.');
+    console.log('Export URL would be:', exportUrl);
+}
+
+async function editItem(itemId) {
+    try {
+        const response = await fetch('api/inventory.php');
+        const items = await response.json();
+        const item = items.find(i => i.id === itemId);
+        
+        if (!item) {
+            alert('Item not found!');
+            return;
+        }
+
+        // Set modal for editing
+        document.getElementById('modalTitle').textContent = 'Edit Menu Item';
+        document.getElementById('itemId').value = item.id;
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('itemDescription').value = item.description || '';
+        document.getElementById('itemPrice').value = item.price;
+        document.getElementById('itemStock').value = item.stock_quantity;
+        document.getElementById('itemLowStockThreshold').value = item.low_stock_threshold || 10;
+        document.getElementById('itemCategory').value = item.category_id || '';
+        document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Save Changes';
+        
+        // Show modal
+        document.getElementById('addItemModal').style.display = 'block';
+    } catch (error) {
+        console.error('Error loading item for edit:', error);
+        alert('Error loading item data');
+    }
+}
+
+function exportReport() {
+    const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
+    const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
+    const url = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&export=csv`;
+    window.location.href = url;
 }

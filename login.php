@@ -42,7 +42,7 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Café Manager</title>
+    <title>Login - MarcouzPizza</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
         .login-container {
@@ -50,7 +50,7 @@ if ($_POST) {
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #F8E6C4;
         }
 
         .login-form {
@@ -99,7 +99,7 @@ if ($_POST) {
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: #2563eb;
+            background: #DF9460;
             color: white;
             border: none;
             border-radius: 8px;
@@ -110,7 +110,7 @@ if ($_POST) {
         }
 
         .login-btn:hover {
-            background: #1d4ed8;
+            background: rgb(164, 100, 54);
         }
     </style>
 </head>
@@ -118,7 +118,7 @@ if ($_POST) {
 <body>
     <div class="login-container">
         <form class="login-form" method="POST">
-            <h1><span style="color: #2563eb;">Café</span><span style="color: #16a34a;">Manager</span></h1>
+            <h1><span style="color: #75945B;">Marcouz</span><span style="color: #75945B;">Pizza</span></h1>
 
             <?php if ($error): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
