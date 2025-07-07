@@ -287,6 +287,10 @@ async function loadInventoryItems() {
         const container = document.getElementById('inventoryItems');
         container.innerHTML = '';
         
+        // Create horizontal container for categories
+        const categoriesContainer = document.createElement('div');
+        categoriesContainer.className = 'categories-container';
+        
         let currentCategory = null;
         let currentSection = null;
         let currentGrid = null;
@@ -311,7 +315,7 @@ async function loadInventoryItems() {
                 currentGrid.className = 'inventory-grid';
                 currentSection.appendChild(currentGrid);
                 
-                container.appendChild(currentSection);
+                categoriesContainer.appendChild(currentSection);
             }
             
             // Create item card
@@ -331,6 +335,8 @@ async function loadInventoryItems() {
             `;
             currentGrid.appendChild(itemDiv);
         });
+        
+        container.appendChild(categoriesContainer);
     } catch (error) {
         console.error('Error loading inventory:', error);
         document.getElementById('inventoryItems').innerHTML = '<p>Error loading inventory</p>';
