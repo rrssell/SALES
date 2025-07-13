@@ -185,7 +185,7 @@ body {
 }
 
 .btn-primary:hover {
-    background: #1d4ed8;
+    background: #bd8006;
 }
 
 .btn-secondary {
@@ -857,24 +857,273 @@ transition: background-color 70ms cubic-bezier(.2,0,.38,.9),outline 70ms cubic-b
     }
 }
 
-/* Existing modal and reports-filter styles (unchanged) */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
-    padding: 10px;
-}
-
 .modal.active {
     display: flex;
 }
 
-/* Rest of modal and reports-filter styles remain unchanged */
+.order-section {
+    margin-top: 8px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.customer-info, .payment-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.customer-info input, .payment-section input {
+    padding: 4px;
+    font-size: 0.8em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.order-total {
+    margin: 6px 0;
+    font-size: 0.85em;
+}
+
+.change-display {
+    font-size: 0.8em;
+    color: #333;
+}
+
+
+.order-section .btn.btn-primary:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.order-section .btn.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.order-section .btn.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Existing menu, modal, and other styles (unchanged) */
+#menuItems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    min-height: auto;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.sidebar-header {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.sidebar-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sidebar-header h1 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .logo-container {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .sidebar-logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.1em;
+    }
+
+    .sidebar-header p {
+        font-size: 0.75em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .sidebar-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1em;
+    }
+
+    .sidebar-header p {
+        font-size: 0.7em;
+    }
+}
+
+
+
+.hamburger-btn {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.hamburger-icon,
+.hamburger-icon::before,
+.hamburger-icon::after {
+    width: 24px;
+    height: 3px;
+    background-color: #b43507;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.hamburger-icon {
+    position: relative;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+}
+
+.hamburger-icon::before {
+    top: -8px;
+}
+
+.hamburger-icon::after {
+    top: 8px;
+}
+
+.sidebar.active .hamburger-icon {
+    background: transparent;
+}
+
+.sidebar.active .hamburger-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.sidebar.active .hamburger-icon::after {
+    transform: rotate(-45deg);
+    top: 0;
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar:not(.active) {
+    transform: translateX(-250px);
+}
+
+.sidebar-nav {
+    padding: 10px;
+}
+
+
+
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .hamburger-btn {
+        display: block;
+    }
+
+    .sidebar {
+        width: 200px;
+    }
+
+    .sidebar:not(.active) {
+        transform: translateX(-200px);
+    }
+
+    .app-container {
+        margin-left: 0;
+    }
+
+    .logo-container {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .sidebar-logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.1em;
+    }
+
+    .sidebar-header p {
+        font-size: 0.75em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .sidebar:not(.active) {
+        transform: translateX(-180px);
+    }
+
+    .sidebar-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1em;
+    }
+
+    .sidebar-header p {
+        font-size: 0.7em;
+    }
+
+    .nav-item {
+        font-size: 0.85em;
+        padding: 6px;
+    }
+}
+

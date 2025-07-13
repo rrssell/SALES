@@ -1,6 +1,4 @@
-
 <?php
-header('Content-Type: application/json');
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -16,6 +14,12 @@ try {
 
     if (!$input || !isset($input['items']) || empty($input['items'])) {
         echo json_encode(['success' => false, 'message' => 'Invalid order data']);
+        exit();
+    }
+
+    // Validate sufficient payment
+    if (!isset($input['amount_paid']) || !isset($input['total_amount']) || $input['amount_paid'] < $input['total_amount']) {
+        echo json_encode(['success' => false, 'message' => 'Insufficient payment amount']);
         exit();
     }
 
@@ -93,4 +97,3 @@ try {
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => 'Error processing order: ' . $e->getMessage()]);
 }
-?>

@@ -7,6 +7,7 @@ let currentView = 'dashboard';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    updateOrderButtonState();
     loadDashboardData();
     loadMenuItems();
     loadCategories();
@@ -734,3 +735,105 @@ function exportReport() {
     const url = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&export=csv`;
     window.location.href = url;
 }
+
+// Add this new function
+function updateOrderButtonState() {
+    const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const totalAmount = parseFloat(document.getElementById('orderTotal').textContent) || 0;
+    const submitBtn = document.getElementById('processOrderBtn');
+    submitBtn.disabled = amountPaid < totalAmount || amountPaid <= 0;
+    calculateChange();
+}
+
+// Modify existing processOrder function
+async function processOrder() {
+    if (currentOrder.length === 0) {
+        alert('No items in order!');
+        return;
+    }
+    
+    const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const customerName = document.getElementById('customerName').value || 'Guest';
+    if (!amountPaid || amountPaid < orderTotal) {
+        alert('Insufficient payment amount!');
+        return;
+    }
+    
+    const orderData = {
+        customer_name: customerName,
+        items: currentOrder,
+        total_amount: orderTotal,
+        amount_paid: amountPaid,
+        change_amount: amountPaid - orderTotal
+    };
+    
+    try {
+        const response = await fetch('api/process-order.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`Order ${result.order_number} placed successfully!`);
+            clearOrder();
+            loadMenuItems();
+            loadInventoryItems();
+            if (currentView === 'dashboard') {
+                loadDashboardData();
+            }
+        } else {
+            alert('Error processing order: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error processing order:', error);
+        alert('Error processing order!');
+    }
+}
+
+
+document.getElementById('amountPaid').removeEventListener('input', calculateChange);
+document.getElementById('amountPaid').addEventListener('input', function() {
+    calculateChange();
+    updateOrderButtonState();
+});
+
+// Toggle sidebar visibility
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+}
+
+// Initialize hamburger menu and sidebar state
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('addItemModal').style.display = 'none';
+    updateOrderButtonState();
+    loadDashboardData();
+    loadMenuItems();
+    loadCategories();
+    setTodaysDate();
+    
+    // Hamburger menu toggle
+    document.getElementById('hamburgerBtn').addEventListener('click', toggleSidebar);
+    
+    // Set initial sidebar state based on screen size
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('active');
+    } else {
+        document.getElementById('sidebar').classList.add('active');
+    }
+});
+
+// Update sidebar state on window resize
+window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+    } else {
+        sidebar.classList.add('active');
+    }
+});

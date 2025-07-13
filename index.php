@@ -21,11 +21,19 @@ if (!isset($_SESSION['user_id'])) {
 
 <body>
     <div class="app-container">
+        <button id="hamburgerBtn" class="hamburger-btn">
+            <span class="hamburger-icon"></span>
+        </button>
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1><span class="brand-blue">Marcouz</span><span class="brand-green">Pizza</span></h1>
-                <p>Inventory & Sales System</p>
+                <div class="logo-container">
+                    <img src="assets/images/logo.png" alt="MarcouzPizza Logo" class="sidebar-logo">
+                    <div class="brand-text">
+                        <h1><span class="brand-blue">Marcouz</span><span class="brand-green">Pizza</span></h1>
+                        <p>Inventory & Sales System</p>
+                    </div>
+                </div>
             </div>
 
             <nav class="sidebar-nav">
@@ -126,11 +134,11 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
                         </div>
                         <div class="payment-section">
-                            <input type="number" id="amountPaid" placeholder="Amount Paid" step="0.01">
+                            <input type="number" id="amountPaid" placeholder="Amount Paid" step="0.01" oninput="updateOrderButtonState()">
                             <div class="change-display">
                                 Change: ₱<span id="changeAmount">0.00</span>
                             </div>
-                            <button class="btn btn-primary" onclick="processOrder()">Process Order</button>
+                            <button id="processOrderBtn" class="btn btn-primary" onclick="processOrder()">Process Order</button>
                             <button class="btn btn-secondary" onclick="clearOrder()">Clear Order</button>
                         </div>
                     </div>
