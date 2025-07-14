@@ -1,9 +1,19 @@
-
 // Global variables
 let currentOrder = [];
 let orderTotal = 0;
 let menuItems = [];
 let currentView = 'dashboard';
+let isTimedIn = false; // Track if user has timed in
+
+// Function to show the time-in modal
+function showTimeInModal() {
+    document.getElementById('timeInModal').style.display = 'block';
+}
+
+// Function to hide the time-in modal
+function hideTimeInModal() {
+    document.getElementById('timeInModal').style.display = 'none';
+}
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCategories();
     setTodaysDate();
     document.getElementById('addItemModal').style.display = 'none';
+    document.getElementById('timeInModal').style.display = 'none'; // Ensure modal is hidden on load
 });
 
 // Navigation functions
@@ -21,15 +32,24 @@ function showView(viewName) {
     const views = document.querySelectorAll('.view');
     views.forEach(view => view.classList.remove('active'));
     
-    // Show selected view
-    document.getElementById(viewName + '-view').classList.add('active');
-    
     // Update active nav item
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => item.classList.remove('active'));
     document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
     
     currentView = viewName;
+    
+    // Check if trying to access orders without being timed in
+    if (viewName === 'orders' && !isTimedIn) {
+        showTimeInModal();
+        document.getElementById('dashboard-view').classList.add('active'); // Fallback to dashboard
+        document.querySelector(`[data-view="dashboard"]`).classList.add('active'); // Keep dashboard nav active
+        currentView = 'dashboard';
+        return;
+    }
+    
+    // Show selected view
+    document.getElementById(viewName + '-view').classList.add('active');
     
     // Load data for the view
     switch(viewName) {
@@ -53,6 +73,7 @@ function showView(viewName) {
             break;
         case 'store-logging':
             loadStoreLogs();
+            hideTimeInModal(); // Ensure modal is hidden in store-logging
             break;
     }
 }
@@ -490,7 +511,11 @@ async function timeIn() {
         
         if (result.success) {
             alert('Time in recorded!');
-            loadStoreLogs();
+            isTimedIn = true; // Update timed-in status
+            hideTimeInModal(); // Hide modal after successful time-in
+            if (currentView === 'orders') {
+                showView('orders'); // Load orders view if user was trying to access it
+            }
         } else {
             alert('Error recording time in!');
         }
@@ -515,6 +540,7 @@ async function timeOut() {
         
         if (result.success) {
             alert('Time out recorded!');
+            isTimedIn = false; // Update timed-in status
             loadStoreLogs();
         } else {
             alert('Error recording time out!');
@@ -569,8 +595,7 @@ function logout() {
     }
 }
 
-// Sales reports and best selling items functions would be similar
-// Adding placeholders for completeness
+// Sales reports and best selling items functions
 async function loadSalesReports() {
     const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
     const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
@@ -690,13 +715,8 @@ function generateReport() {
 function exportReport() {
     const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
     const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
-    
-    // Create CSV export URL
-    const exportUrl = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&format=csv`;
-    
-    // For now, just show an alert - you can enhance this later
-    alert('CSV export functionality can be added. For now, the data is displayed on screen.');
-    console.log('Export URL would be:', exportUrl);
+    const url = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&export=csv`;
+    window.location.href = url;
 }
 
 async function editItem(itemId) {
@@ -729,14 +749,6 @@ async function editItem(itemId) {
     }
 }
 
-function exportReport() {
-    const startDate = document.getElementById('reportStartDate').value || new Date().toISOString().split('T')[0];
-    const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
-    const url = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&export=csv`;
-    window.location.href = url;
-}
-
-// Add this new function
 function updateOrderButtonState() {
     const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
     const totalAmount = parseFloat(document.getElementById('orderTotal').textContent) || 0;
@@ -745,7 +757,6 @@ function updateOrderButtonState() {
     calculateChange();
 }
 
-// Modify existing processOrder function
 async function processOrder() {
     if (currentOrder.length === 0) {
         alert('No items in order!');
@@ -795,7 +806,6 @@ async function processOrder() {
     }
 }
 
-
 document.getElementById('amountPaid').removeEventListener('input', calculateChange);
 document.getElementById('amountPaid').addEventListener('input', function() {
     calculateChange();
@@ -811,6 +821,7 @@ function toggleSidebar() {
 // Initialize hamburger menu and sidebar state
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('addItemModal').style.display = 'none';
+    document.getElementById('timeInModal').style.display = 'none';
     updateOrderButtonState();
     loadDashboardData();
     loadMenuItems();
@@ -834,6 +845,6 @@ window.addEventListener('resize', function() {
     if (window.innerWidth <= 768) {
         sidebar.classList.remove('active');
     } else {
-        sidebar.classList.add('active');
+        document.getElementById('sidebar').classList.add('active');
     }
 });

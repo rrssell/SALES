@@ -222,7 +222,7 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Modals -->
     <div id="addItemModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('addItemModal')">&times;</span>
+            <span class="close" onclick="closeModal('addItemModal')">×</span>
             <h2 id="modalTitle">Add New Menu Item</h2>
             <form id="addItemForm">
                 <input type="hidden" id="itemId">
@@ -250,6 +250,15 @@ if (!isset($_SESSION['user_id'])) {
                 </select>
                 <button type="submit" class="btn btn-primary">Add Item</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Time In Modal -->
+    <div id="timeInModal" class="modal">
+        <div class="modal-content">
+            <h2>Time In Required</h2>
+            <p>You need to time in before accessing Order Management.</p>
+            <button class="btn btn-primary" onclick="showView('store-logging')">Go to Time In</button>
         </div>
     </div>
 
