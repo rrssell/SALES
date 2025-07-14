@@ -4,6 +4,8 @@ let orderTotal = 0;
 let menuItems = [];
 let currentView = 'dashboard';
 let isTimedIn = false; // Track if user has timed in
+let timeInStart = null; // Store time-in timestamp
+let statusInterval = null; // Interval for updating status
 
 // Function to show the time-in modal
 function showTimeInModal() {
@@ -15,6 +17,46 @@ function hideTimeInModal() {
     document.getElementById('timeInModal').style.display = 'none';
 }
 
+// Function to update time log button states
+function updateTimeLogButtons() {
+    const timeInBtn = document.getElementById('timeInBtn');
+    const timeOutBtn = document.getElementById('timeOutBtn');
+    if (timeInBtn && timeOutBtn) {
+        timeInBtn.disabled = isTimedIn;
+        timeOutBtn.disabled = !isTimedIn;
+        // Update visual feedback for disabled state
+        timeInBtn.style.opacity = isTimedIn ? '0.5' : '1';
+        timeOutBtn.style.opacity = isTimedIn ? '1' : '0.5';
+    }
+}
+
+// Function to update time status display
+function updateTimeStatus() {
+    const timeStatus = document.getElementById('timeStatus');
+    if (!timeStatus) return;
+
+    if (!isTimedIn || !timeInStart) {
+        timeStatus.textContent = 'Status: Timed Out';
+        if (statusInterval) {
+            clearInterval(statusInterval);
+            statusInterval = null;
+        }
+        return;
+    }
+
+    // Calculate duration
+    const now = new Date();
+    const diffMs = now - timeInStart;
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    timeStatus.textContent = `Status: Timed In for ${hours.toString().padStart(2, '0')}hr ${minutes.toString().padStart(2, '0')}min`;
+
+    // Start interval to update every minute if not already running
+    if (!statusInterval) {
+        statusInterval = setInterval(updateTimeStatus, 60000); // Update every minute
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     updateOrderButtonState();
@@ -23,7 +65,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCategories();
     setTodaysDate();
     document.getElementById('addItemModal').style.display = 'none';
-    document.getElementById('timeInModal').style.display = 'none'; // Ensure modal is hidden on load
+    document.getElementById('timeInModal').style.display = 'none';
+    updateTimeLogButtons();
+    updateTimeStatus();
 });
 
 // Navigation functions
@@ -42,8 +86,8 @@ function showView(viewName) {
     // Check if trying to access orders without being timed in
     if (viewName === 'orders' && !isTimedIn) {
         showTimeInModal();
-        document.getElementById('dashboard-view').classList.add('active'); // Fallback to dashboard
-        document.querySelector(`[data-view="dashboard"]`).classList.add('active'); // Keep dashboard nav active
+        document.getElementById('dashboard-view').classList.add('active');
+        document.querySelector(`[data-view="dashboard"]`).classList.add('active');
         currentView = 'dashboard';
         return;
     }
@@ -73,7 +117,9 @@ function showView(viewName) {
             break;
         case 'store-logging':
             loadStoreLogs();
-            hideTimeInModal(); // Ensure modal is hidden in store-logging
+            hideTimeInModal();
+            updateTimeLogButtons();
+            updateTimeStatus();
             break;
     }
 }
@@ -279,7 +325,7 @@ async function processOrder() {
         if (result.success) {
             alert('Order processed successfully!');
             clearOrder();
-            loadMenuItems(); // Refresh stock quantities
+            loadMenuItems();
             if (currentView === 'dashboard') {
                 loadDashboardData();
             }
@@ -511,16 +557,21 @@ async function timeIn() {
         
         if (result.success) {
             alert('Time in recorded!');
-            isTimedIn = true; // Update timed-in status
-            hideTimeInModal(); // Hide modal after successful time-in
+            isTimedIn = true;
+            timeInStart = new Date(); // Set time-in timestamp
+            updateTimeLogButtons();
+            updateTimeStatus();
+            hideTimeInModal();
+            loadStoreLogs();
             if (currentView === 'orders') {
-                showView('orders'); // Load orders view if user was trying to access it
+                showView('orders');
             }
         } else {
-            alert('Error recording time in!');
+            alert('Error recording time in: ' + result.message);
         }
     } catch (error) {
         console.error('Error with time in:', error);
+        alert('Error recording time in!');
     }
 }
 
@@ -540,13 +591,17 @@ async function timeOut() {
         
         if (result.success) {
             alert('Time out recorded!');
-            isTimedIn = false; // Update timed-in status
+            isTimedIn = false;
+            timeInStart = null; // Clear time-in timestamp
+            updateTimeLogButtons();
+            updateTimeStatus();
             loadStoreLogs();
         } else {
-            alert('Error recording time out!');
+            alert('Error recording time out: ' + result.message);
         }
     } catch (error) {
         console.error('Error with time out:', error);
+        alert('Error recording time out!');
     }
 }
 
@@ -556,7 +611,16 @@ async function loadStoreLogs() {
         const logs = await response.json();
         
         const container = document.getElementById('storeLogsList');
+        if (!container) {
+            console.error('Store logs container not found');
+            return;
+        }
         container.innerHTML = '';
+        
+        if (logs.length === 0) {
+            container.innerHTML = '<p>No store logs available.</p>';
+            return;
+        }
         
         logs.forEach(log => {
             const logDiv = document.createElement('div');
@@ -567,13 +631,17 @@ async function loadStoreLogs() {
                     ${new Date(log.timestamp).toLocaleString()}
                 </div>
                 <div>
-                    ${log.username}
+                    ${log.username || 'Unknown User'}
                 </div>
             `;
             container.appendChild(logDiv);
         });
     } catch (error) {
         console.error('Error loading store logs:', error);
+        const container = document.getElementById('storeLogsList');
+        if (container) {
+            container.innerHTML = '<p>Error loading store logs.</p>';
+        }
     }
 }
 
@@ -827,6 +895,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMenuItems();
     loadCategories();
     setTodaysDate();
+    updateTimeLogButtons();
+    updateTimeStatus();
     
     // Hamburger menu toggle
     document.getElementById('hamburgerBtn').addEventListener('click', toggleSidebar);

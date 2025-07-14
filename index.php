@@ -209,8 +209,9 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
                 <br>
                 <div class="store-actions">
-                    <button class="btn btn-success" onclick="timeIn()">Time In</button>
-                    <button class="btn btn-danger" onclick="timeOut()">Time Out</button>
+                    <button id="timeInBtn" class="btn btn-success" onclick="timeIn()">Time In</button>
+                    <button id="timeOutBtn" class="btn btn-danger" onclick="timeOut()">Time Out</button>
+                    <span id="timeStatus" class="time-status">Status: Timed Out</span>
                 </div>
                 <div id="storeLogsList" class="store-logs">
                     <!-- Store logs will be loaded here -->
