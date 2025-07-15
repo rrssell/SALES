@@ -249,7 +249,10 @@ if (!isset($_SESSION['user_id'])) {
                 <select id="itemCategory">
                     <option value="">Select Category</option>
                 </select>
-                <button type="submit" class="btn btn-primary">Add Item</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                    <button type="button" class="btn btn-danger delete-item-btn" style="display: none;" onclick="deleteItem()">Delete Item</button>
+                </div>
             </form>
         </div>
     </div>

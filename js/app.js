@@ -452,6 +452,8 @@ function showAddItemModal() {
     document.getElementById('itemLowStockThreshold').value = '';
     document.getElementById('itemCategory').value = '';
     document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Add Item';
+    const deleteBtn = document.getElementById('addItemForm').querySelector('.delete-item-btn');
+    if (deleteBtn) deleteBtn.style.display = 'none';
     document.getElementById('addItemModal').style.display = 'block';
 }
 
@@ -499,12 +501,53 @@ async function editItem(itemId) {
         document.getElementById('itemLowStockThreshold').value = item.low_stock_threshold || 10;
         document.getElementById('itemCategory').value = item.category_id || '';
         document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Save Changes';
-        
-        // Show modal
+        const deleteBtn = document.getElementById('addItemForm').querySelector('.delete-item-btn');
+        if (deleteBtn) deleteBtn.style.display = 'inline-block';
         document.getElementById('addItemModal').style.display = 'block';
     } catch (error) {
         console.error('Error loading item for edit:', error);
         alert('Error loading item data');
+    }
+}
+
+async function deleteItem() {
+    const itemId = document.getElementById('itemId').value;
+    if (!itemId) {
+        alert('No item selected for deletion!');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('api/delete-item.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: parseInt(itemId) })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Item deleted successfully!');
+            closeModal('addItemModal');
+            document.getElementById('addItemForm').reset();
+            document.getElementById('modalTitle').textContent = 'Add New Menu Item';
+            document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Add Item';
+            const deleteBtn = document.getElementById('addItemForm').querySelector('.delete-item-btn');
+            if (deleteBtn) deleteBtn.style.display = 'none';
+            loadInventoryItems();
+            loadMenuItems();
+        } else {
+            alert('Error deleting item: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        alert('Error deleting item!');
     }
 }
 
@@ -542,6 +585,8 @@ document.getElementById('addItemForm').addEventListener('submit', async function
             document.getElementById('addItemForm').reset();
             document.getElementById('modalTitle').textContent = 'Add New Menu Item';
             document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Add Item';
+            const deleteBtn = document.getElementById('addItemForm').querySelector('.delete-item-btn');
+            if (deleteBtn) deleteBtn.style.display = 'none';
             loadInventoryItems();
             loadMenuItems();
         } else {
