@@ -442,6 +442,16 @@ async function restockItem(itemId) {
 
 // Modal functions
 function showAddItemModal() {
+    // Reset form for adding a new item
+    document.getElementById('modalTitle').textContent = 'Add New Menu Item';
+    document.getElementById('itemId').value = '';
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemDescription').value = '';
+    document.getElementById('itemPrice').value = '';
+    document.getElementById('itemStock').value = '';
+    document.getElementById('itemLowStockThreshold').value = '';
+    document.getElementById('itemCategory').value = '';
+    document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Add Item';
     document.getElementById('addItemModal').style.display = 'block';
 }
 
@@ -468,19 +478,55 @@ async function loadCategories() {
     }
 }
 
+async function editItem(itemId) {
+    try {
+        const response = await fetch('api/inventory.php');
+        const items = await response.json();
+        const item = items.find(i => i.id === itemId);
+        
+        if (!item) {
+            alert('Item not found!');
+            return;
+        }
+
+        // Set modal for editing
+        document.getElementById('modalTitle').textContent = 'Edit Menu Item';
+        document.getElementById('itemId').value = item.id;
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('itemDescription').value = item.description || '';
+        document.getElementById('itemPrice').value = item.price;
+        document.getElementById('itemStock').value = item.stock_quantity;
+        document.getElementById('itemLowStockThreshold').value = item.low_stock_threshold || 10;
+        document.getElementById('itemCategory').value = item.category_id || '';
+        document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Save Changes';
+        
+        // Show modal
+        document.getElementById('addItemModal').style.display = 'block';
+    } catch (error) {
+        console.error('Error loading item for edit:', error);
+        alert('Error loading item data');
+    }
+}
+
 document.getElementById('addItemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    const itemId = document.getElementById('itemId').value;
     const formData = {
+        id: itemId ? parseInt(itemId) : null,
         name: document.getElementById('itemName').value,
         description: document.getElementById('itemDescription').value,
         price: parseFloat(document.getElementById('itemPrice').value),
         stock_quantity: parseInt(document.getElementById('itemStock').value),
+        low_stock_threshold: parseInt(document.getElementById('itemLowStockThreshold').value),
         category_id: document.getElementById('itemCategory').value || null
     };
     
+    const endpoint = itemId ? 'api/edit-item.php' : 'api/add-item.php';
+    const successMessage = itemId ? 'Item updated successfully!' : 'Item added successfully!';
+    
     try {
-        const response = await fetch('api/add-item.php', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -491,16 +537,19 @@ document.getElementById('addItemForm').addEventListener('submit', async function
         const result = await response.json();
         
         if (result.success) {
-            alert('Item added successfully!');
+            alert(successMessage);
             closeModal('addItemModal');
             document.getElementById('addItemForm').reset();
+            document.getElementById('modalTitle').textContent = 'Add New Menu Item';
+            document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Add Item';
             loadInventoryItems();
             loadMenuItems();
         } else {
-            alert('Error adding item!');
+            alert(`Error ${itemId ? 'updating' : 'adding'} item: ${result.message}`);
         }
     } catch (error) {
-        console.error('Error adding item:', error);
+        console.error(`Error ${itemId ? 'updating' : 'adding'} item:`, error);
+        alert(`Error ${itemId ? 'updating' : 'adding'} item!`);
     }
 });
 
@@ -785,36 +834,6 @@ function exportReport() {
     const endDate = document.getElementById('reportEndDate').value || new Date().toISOString().split('T')[0];
     const url = `api/sales-reports.php?start_date=${startDate}&end_date=${endDate}&export=csv`;
     window.location.href = url;
-}
-
-async function editItem(itemId) {
-    try {
-        const response = await fetch('api/inventory.php');
-        const items = await response.json();
-        const item = items.find(i => i.id === itemId);
-        
-        if (!item) {
-            alert('Item not found!');
-            return;
-        }
-
-        // Set modal for editing
-        document.getElementById('modalTitle').textContent = 'Edit Menu Item';
-        document.getElementById('itemId').value = item.id;
-        document.getElementById('itemName').value = item.name;
-        document.getElementById('itemDescription').value = item.description || '';
-        document.getElementById('itemPrice').value = item.price;
-        document.getElementById('itemStock').value = item.stock_quantity;
-        document.getElementById('itemLowStockThreshold').value = item.low_stock_threshold || 10;
-        document.getElementById('itemCategory').value = item.category_id || '';
-        document.getElementById('addItemForm').querySelector('button[type="submit"]').textContent = 'Save Changes';
-        
-        // Show modal
-        document.getElementById('addItemModal').style.display = 'block';
-    } catch (error) {
-        console.error('Error loading item for edit:', error);
-        alert('Error loading item data');
-    }
 }
 
 function updateOrderButtonState() {
