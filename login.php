@@ -54,18 +54,30 @@ if ($_POST) {
         }
 
         .login-form {
-            background: white;
+            background: #f3ece3ff;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            text-align: center;
+            /* Center logo and title */
+        }
+
+        .login-form .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .login-form .logo {
+            max-width: 200px;
+            /* Adjust size as needed */
+            height: auto;
         }
 
         .login-form h1 {
-            text-align: center;
             margin-bottom: 30px;
             color: #1f2937;
+            font-size: 34px;
         }
 
         .form-group {
@@ -79,6 +91,7 @@ if ($_POST) {
             font-weight: 500;
         }
 
+        
         .form-group input {
             width: 100%;
             padding: 12px;
@@ -118,6 +131,9 @@ if ($_POST) {
 <body>
     <div class="login-container">
         <form class="login-form" method="POST">
+            <div class="logo-container">
+                <img src="assets/images/logo.png" alt="MarcouzPizza Logo" class="logo">
+            </div>
             <h1><span style="color: #75945B;">Marcouz</span><span style="color: #75945B;">Pizza</span></h1>
 
             <?php if ($error): ?>
@@ -135,10 +151,6 @@ if ($_POST) {
             </div>
 
             <button type="submit" class="login-btn">Login</button>
-
-            <div style="margin-top: 20px; text-align: center; color: #6b7280; font-size: 14px;">
-                Default login: <strong>admin</strong> / <strong>admin123</strong>
-            </div>
         </form>
     </div>
 </body>

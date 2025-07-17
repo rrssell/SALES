@@ -130,6 +130,7 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 24px;
     margin-bottom: 32px;
+    
 }
 
 .card {
@@ -140,9 +141,9 @@ body {
     color: white;
 }
 
-.gradient-green { background: linear-gradient(135deg, #4b7c21, #365f13); }
-.gradient-blue { background: linear-gradient(135deg, #242585, #13146c); }
-.gradient-purple { background: linear-gradient(135deg, #BC2625, #a41919); }
+.gradient-green { z-index: 2; background: linear-gradient(135deg, #4b7c21, #365f13); }
+.gradient-blue { z-index: 2; background: linear-gradient(135deg, #242585, #13146c); }
+.gradient-purple { z-index: 2; background: linear-gradient(135deg, #BC2625, #a41919); }
 
 .card h3 {
     font-size: 14px;
@@ -159,6 +160,9 @@ body {
 .dashboard-section {
     background: #DF9460;
     padding: 24px;
+    z-index: 3;
+    opacity: .9;
+    position: relative;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -1127,3 +1131,24 @@ transition: background-color 70ms cubic-bezier(.2,0,.38,.9),outline 70ms cubic-b
     }
 }
 
+#dashboard-view {
+    position: relative;
+    min-height: 100vh; /* Ensure the div takes full height for background */
+    width: 100%;
+}
+
+#dashboard-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/images/logo.png'); /* Adjust path if needed */
+    background-size: 600px auto; /* Makes the logo big, adjust as needed */
+    background-position: center; /* Centers the logo */
+    background-repeat: no-repeat; /* Prevents tiling */
+    opacity: 0.5; /* 50% opacity */
+    z-index: 1; /* Places it behind the content */
+    pointer-events: none; /* Prevent interaction with the background */
+}
